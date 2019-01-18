@@ -281,7 +281,10 @@ EXPORT unsigned int CALL DoRspCycles(unsigned int cycles)
     static char task_debug[] = "unknown task type:  0x????????";
     char* task_debug_type;
     OSTask_type task_type;
+    unsigned int ucode_addr;
+    unsigned int val;
     register unsigned int i;
+    unsigned int sum = 0;
 
     if (GET_RCP_REG(SP_STATUS_REG) & 0x00000003) {
         message("SP_STATUS_HALT");
@@ -291,6 +294,7 @@ EXPORT unsigned int CALL DoRspCycles(unsigned int cycles)
 
 #ifdef USE_CLIENT_ENDIAN
     memcpy(&task_type, DMEM + 0xFC0, 4);
+    memcpy(&ucode_addr, DMEM + 0xFD0, 4);
 #else
     task_type = 0x00000000
       | (u32)(DMEM[0xFC0 ^ 0] & 0xFFu) << 24
@@ -303,6 +307,14 @@ EXPORT unsigned int CALL DoRspCycles(unsigned int cycles)
     case M_GFXTASK:
         if (CFG_HLE_GFX == 0)
             break;
+
+        /*Yakouchuu II - Satsujun Kouru*/
+        for(i = 0; i < 1488; i=i+4) { /*372 instructions*/
+          memcpy(&val, (DRAM + ucode_addr + i), 4);
+          sum += val;
+        }
+        if(sum == 0xd43707a5)
+          break;
 
         if (*(pi32)(DMEM + 0xFF0) == 0x00000000)
             break; /* Resident Evil 2, null task pointers */
