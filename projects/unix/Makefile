@@ -111,6 +111,11 @@ ifneq ("$(filter arm%,$(HOST_CPU))","")
     $(warning Architecture "$(HOST_CPU)" not officially supported.')
   endif
 endif
+ifneq ("$(filter aarch64,$(HOST_CPU))","")
+    CPU := ARM
+    ARCH_DETECTED := 64BITS
+    PIC ?= 1
+endif
 ifeq ("$(CPU)","NONE")
   $(error CPU type "$(HOST_CPU)" not supported.  Please file bug report at 'https://github.com/mupen64plus/mupen64plus-core/issues')
 endif
